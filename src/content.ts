@@ -20,9 +20,9 @@ const COMMENTS_COUNT_SELECTORS = [
 ];
 const DESCRIPTION_TAGS_SELECTOR = "#title > yt-formatted-string > a";
 const AUTHOUR_NAME_SELECTOR =
-    "#metapanel > yt-reel-metapanel-view-model > div:nth-child(1) > yt-reel-channel-bar-view-model > span > a";
+    "yt-reel-player-overlay-renderer yt-reel-channel-bar-view-model a";
 const AUTHOUR_NAME_SELECTOR_2 =
-    "#metapanel > yt-reel-metapanel-view-model > div:nth-child(2) > yt-reel-channel-bar-view-model > span > a";
+    "yt-reel-channel-bar-view-model a";
 
 const NEXT_BUTTON_SELECTOR =
     "#navigation-button-down > ytd-button-renderer > yt-button-shape > button";
@@ -154,24 +154,27 @@ async function checkForNewShort() {
     currentVideoElement.addEventListener("ended", shortEnded);
     currentVideoElement._hasEndEvent = true;
 
-    // Check if the current short has metadata
+    // Check if the current short has enough metadata to evaluate filters.
     const isMetaDataHydrated = (selector: string) => {
       return currentShort.querySelector(selector) != null;
     };
+    const hasMinimumMetadata = () => {
+      return (
+          isMetaDataHydrated(AUTHOUR_NAME_SELECTOR) ||
+          isMetaDataHydrated(AUTHOUR_NAME_SELECTOR_2) ||
+          isMetaDataHydrated(DESCRIPTION_TAGS_SELECTOR)
+      );
+    };
 
-    if (!isMetaDataHydrated(AUTHOUR_NAME_SELECTOR)) {
+    if (!hasMinimumMetadata()) {
       let l = 0;
-      // If the creator name is not found, wait for it to load (A long with other data)
-      while (!isMetaDataHydrated(AUTHOUR_NAME_SELECTOR)) {
-        if (isMetaDataHydrated(AUTHOUR_NAME_SELECTOR_2)) break;
+      while (!hasMinimumMetadata()) {
         if (l > MAX_RETRIES) {
-          // If after time not found, scroll to next short
-          let prevShortId = currentShortId;
-          currentShortId = null;
+          // Continue even if metadata isn't available yet.
           console.log(
-              "[Auto Youtube Shorts Scroller] Metadata not hydrated, scrolling to next short..."
+              "[Auto Youtube Shorts Scroller] Metadata not hydrated after wait, continuing with available data..."
           );
-          return scrollToNextShort(prevShortId, false);
+          break;
         }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
         l++;

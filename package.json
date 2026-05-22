@@ -1,7 +1,7 @@
 {
   "name": "auto_youtube_shorts_scroller",
   "scripts": {
-    "build": "tsc && mkdir -p extension/dist && mv ./dist/* ./extension/dist/"
+    "build": "tsc"
   },
   "dependencies": {
     "@types/firefox-webext-browser": "^120.0.4",
