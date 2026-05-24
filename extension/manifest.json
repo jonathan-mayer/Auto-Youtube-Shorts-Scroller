@@ -23,5 +23,11 @@
     "default_icon": "./img/autoYTScrollerIcon128.png",
     "default_title": "Start scrolling!"
   },
-  "description": "Automatically scrolls to the next Youtube Short when one ends!"
+  "description": "Automatically scrolls to the next Youtube Short when one ends!",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "auto-youtube-shorts-scroller@local",
+      "strict_min_version": "115.0"
+    }
+  }
 }
